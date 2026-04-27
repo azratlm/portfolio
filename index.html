@@ -1,0 +1,981 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Azra Talum</title>
+  <link href="https://fonts.googleapis.com/css2?family=Special+Elite&family=Rye&family=Irish+Grover&family=MonteCarlo&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    img { -webkit-user-drag: none; user-select: none; pointer-events: none; }
+
+    body {
+      background: #c19a6b;
+      font-family: 'Irish Grover', cursive;
+    }
+
+    /* ── SHARED BOARD BACKGROUND ── */
+    section {
+      background-image: url('assets /background.jpg');
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+      position: relative;
+    }
+
+    /* ══════════════════════════════
+       HERO
+    ══════════════════════════════ */
+    #hero {
+      height: 100vh;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: flex-start;
+      justify-content: flex-start;
+      padding: 48px 64px;
+    }
+
+    /* bottom-right corner decoration — 45% screen height */
+    .corner {
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      height: 70vh;
+      width: auto;
+      pointer-events: none;
+    }
+
+    /* name + subtitle grouped left */
+    .hero-content {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .name-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0;
+    }
+
+    .name-row {
+      display: flex;
+      gap: 0;
+      align-items: flex-end;
+    }
+
+    .name-row img {
+      height: 148px;
+      width: auto;
+    }
+
+    /* pull all visible letters closer together */
+    .name-row img:not(.letter-spacer) { margin-right: -18px; }
+    .name-row img:not(.letter-spacer):last-child { margin-right: 0; }
+
+    /* Z has extra right whitespace — bring R in tighter */
+    .name-row:first-child img[alt="r"] { margin-left: -48px; }
+
+    /* azra letters have short source images so they render big at 148px — scale down to match talum */
+    .name-row:first-child img:not(.letter-spacer) { height: 116px; }
+
+    /* A and U images are shorter/wider than T and L — scale them down to match */
+    .name-row:nth-child(2) img[alt="a"] { height: 115px; }
+    .name-row:nth-child(2) img[alt="u"] { height: 122px; }
+
+    .letter-spacer {
+      height: 148px;
+      width: auto;
+      visibility: hidden;
+      pointer-events: none;
+      flex-shrink: 0;
+    }
+
+    .subtitle-row {
+      display: flex;
+      align-items: flex-end;
+      gap: 0;
+      margin-top: -90px;
+    }
+
+    .hero-subtitle {
+      font-family: 'Irish Grover', cursive;
+      font-size: 52px;
+      color: #F3EDDB;
+      line-height: 1;
+    }
+
+    .star {
+      position: absolute;
+      bottom: 110px;
+      left: 60px;
+      width: 140px;
+      transform: rotate(12deg);
+    }
+
+    .welcome-text {
+      position: absolute;
+      bottom: 36px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-family: 'Irish Grover', cursive;
+      color: #8F2B27;
+      font-size: 42px;
+      white-space: nowrap;
+    }
+
+    /* ══════════════════════════════
+       NAV NOTES
+    ══════════════════════════════ */
+    #nav-notes {
+      min-height: 135vh;
+      position: relative;
+      overflow: visible;
+    }
+
+    .notes-grid {
+      position: relative;
+      width: 100%;
+      height: 100%;
+    }
+
+    .note-card {
+      position: absolute;
+      width: 360px;
+      cursor: pointer;
+      text-decoration: none;
+      display: block;
+      transition: transform 0.25s ease;
+    }
+
+    /* 2×2 staggered layout matching Figma — bottom row uses vh so it doesn't overflow */
+    .note-1 { left: 5%;  top: 7vh;   transform: rotate(-3deg); }
+    .note-2 { left: 47%; top: 5vh;   transform: rotate(2deg); }
+    .note-3 { left: 25%; top: 55vh;  transform: rotate(-2deg); }
+    .note-4 { right: 5%; top: 53vh;  transform: rotate(2.5deg); }
+
+    .note-1:hover { transform: rotate(-3deg) scale(1.04); }
+    .note-2:hover { transform: rotate(2deg) scale(1.04); }
+    .note-3:hover { transform: rotate(-2deg) scale(1.04); }
+    .note-4:hover { transform: rotate(2.5deg) scale(1.04); }
+
+    .note-arrow {
+      position: absolute;
+      bottom: 11%;
+      right: 14%;
+      font-family: 'Irish Grover', cursive;
+      font-size: 1.3rem;
+      color: #8b1a1a;
+      opacity: 0;
+      transform: translateX(-6px);
+      transition: opacity 0.2s ease, transform 0.2s ease;
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    .note-card:hover .note-arrow {
+      opacity: 1;
+      transform: translateX(0);
+    }
+
+    .note-card img.note-bg {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    .note-content {
+      position: absolute;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 62%;
+      text-align: center;
+    }
+
+    /* align text to each note's paper area */
+    .note-content-1 { top: 47%; }
+    .note-content-2 { top: 46%; }
+    .note-content-3 { top: 45%; left: 55%; }
+    .note-content-4 { top: 47%; }
+
+    .note-title {
+      font-family: 'Irish Grover', cursive;
+      color: #8b1a1a;
+      font-size: 1.6rem;
+      margin-bottom: 10px;
+      -webkit-text-stroke: 1px #000;
+      paint-order: stroke fill;
+    }
+
+    .note-list {
+      list-style: none;
+      font-family: 'Irish Grover', cursive;
+      font-size: 1rem;
+      color: #3a2a1a;
+      text-align: left;
+      line-height: 1.85;
+    }
+
+    .note-list li::before {
+      content: "· ";
+    }
+
+    .resume-download-btn {
+      display: inline-block;
+      font-family: 'Irish Grover', cursive;
+      font-size: 0.88rem;
+      color: #3a2a1a;
+      text-decoration: none;
+      border: 2px solid #3a2a1a;
+      padding: 5px 16px;
+      margin-top: 10px;
+      background: rgba(255,255,255,0.35);
+      transition: background 0.2s ease;
+    }
+
+    .resume-download-btn:hover {
+      background: rgba(255,255,255,0.7);
+    }
+
+    /* ══════════════════════════════
+       ABOUT
+    ══════════════════════════════ */
+    #about {
+      min-height: 100vh;
+      position: relative;
+      display: flex;
+      align-items: center;
+      padding: 60px 80px;
+      gap: 0;
+      overflow: hidden;
+    }
+
+    .about-card {
+      position: relative;
+      width: 600px;
+      flex-shrink: 0;
+      transform: rotate(-3deg);
+    }
+
+    .about-card img.about-bg {
+      width: 100%;
+      display: block;
+    }
+
+    .about-text-content {
+      position: absolute;
+      top: 18%;
+      left: 25%;
+      width: 60%;
+    }
+
+    .about-heading {
+      font-family: 'MonteCarlo', cursive;
+      color: #8b1a1a;
+      font-size: 1.6rem;
+      font-style: italic;
+      margin-bottom: 14px;
+    }
+
+    .about-bio {
+      font-size: 0.88rem;
+      line-height: 1.75;
+      color: #2a1a0a;
+    }
+
+    .about-photo {
+      position: absolute;
+      bottom: 0;
+      right: 0;
+    }
+
+    .about-photo img {
+      width: 600px;
+      height: 1000px;
+      object-fit: cover;
+      display: block;
+    }
+
+    /* ══════════════════════════════
+       PROJECTS
+    ══════════════════════════════ */
+    #projects {
+      min-height: 100vh;
+      padding: 80px 60px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .projects-heading {
+      font-family: 'Irish Grover', cursive;
+      font-size: 3rem;
+      color: #8F2B27;
+      text-align: center;
+      margin-bottom: 70px;
+      letter-spacing: 2px;
+      width: 100%;
+    }
+
+    .polaroids-container {
+      display: grid;
+      grid-template-columns: repeat(3, 220px);
+      gap: 50px 60px;
+      justify-content: center;
+    }
+
+    .polaroid {
+      display: block;
+      text-decoration: none;
+      width: 220px;
+      cursor: pointer;
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
+    }
+
+    .polaroid:nth-child(1) { transform: rotate(-3deg); }
+    .polaroid:nth-child(2) { transform: rotate(2deg); }
+    .polaroid:nth-child(3) { transform: rotate(-1.5deg); }
+    .polaroid:nth-child(4) { transform: rotate(3deg); }
+    .polaroid:nth-child(5) { transform: rotate(-2deg); }
+    .polaroid:nth-child(6) { transform: rotate(1.5deg); }
+
+    .polaroid:hover {
+      transform: rotate(0deg) scale(1.06) !important;
+    }
+
+    .polaroid-inner {
+      background: #fffef5;
+      padding: 12px;
+      box-shadow: 4px 6px 18px rgba(0,0,0,0.35);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .polaroid-img {
+      width: 100%;
+      height: 160px;
+      object-fit: cover;
+      display: block;
+    }
+
+    /* placeholder when no image */
+    .polaroid-placeholder {
+      width: 100%;
+      height: 160px;
+      background: #d4bfa0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #7a5c3a;
+      font-size: 0.75rem;
+      letter-spacing: 1px;
+    }
+
+    .polaroid-bottom {
+      padding: 10px 4px 6px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 7px;
+      min-height: 50px;
+    }
+
+    .polaroid-caption {
+      text-align: center;
+      font-family: 'Irish Grover', cursive;
+      font-size: 0.9rem;
+      color: #3a2a1a;
+      line-height: 1.3;
+    }
+
+    .polaroid-tech {
+      display: flex;
+      gap: 6px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .polaroid-tech img {
+      width: 18px;
+      height: 18px;
+      opacity: 0.8;
+      transition: opacity 0.2s;
+      filter: sepia(15%);
+    }
+
+    .polaroid-tech img:hover {
+      opacity: 1;
+      filter: none;
+    }
+
+    .polaroid-status {
+      font-family: 'Irish Grover', cursive;
+      font-size: 0.65rem;
+      letter-spacing: 1px;
+      padding: 2px 8px;
+      border-radius: 2px;
+    }
+
+    .status-done {
+      background: #d4bfa0;
+      color: #3a2a1a;
+    }
+
+    .status-wip {
+      background: #8F2B27;
+      color: #F3EDDB;
+    }
+
+    /* ══════════════════════════════
+       PROJECT MODAL
+    ══════════════════════════════ */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(30, 15, 5, 0.75);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+
+    .modal-overlay.open {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .modal-polaroid {
+      background: #fffef5;
+      padding: 22px 22px 28px;
+      box-shadow: 8px 14px 50px rgba(0,0,0,0.55);
+      width: 680px;
+      max-width: 92vw;
+      max-height: 92vh;
+      overflow-y: auto;
+      position: relative;
+      transform: scale(0.75) rotate(-4deg);
+      transition: transform 0.35s cubic-bezier(0.34,1.4,0.64,1);
+    }
+
+    .modal-overlay.open .modal-polaroid {
+      transform: scale(1) rotate(0deg);
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 10px;
+      right: 14px;
+      background: none;
+      border: none;
+      font-size: 1.3rem;
+      cursor: pointer;
+      color: #3a2a1a;
+      font-family: 'Irish Grover', cursive;
+      line-height: 1;
+      padding: 0;
+    }
+
+    .modal-close:hover { color: #8b1a1a; }
+
+    .modal-img-area {
+      width: 100%;
+      height: 420px;
+      background: #d4bfa0;
+      position: relative;
+      overflow: hidden;
+      margin-bottom: 8px;
+    }
+
+    .modal-gallery-img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+    }
+
+    .modal-img-placeholder {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #7a5c3a;
+      font-family: 'Irish Grover', cursive;
+      font-size: 0.8rem;
+      letter-spacing: 1px;
+    }
+
+    .gallery-btn {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(20, 10, 0, 0.45);
+      border: none;
+      color: #F3EDDB;
+      font-size: 2rem;
+      line-height: 1;
+      padding: 6px 12px;
+      cursor: pointer;
+      opacity: 0;
+      transition: opacity 0.2s;
+      z-index: 2;
+    }
+
+    .modal-img-area:hover .gallery-btn { opacity: 1; }
+    .gallery-btn.hidden { display: none; }
+    .gallery-prev { left: 0; }
+    .gallery-next { right: 0; }
+
+    .gallery-dots {
+      display: flex;
+      gap: 6px;
+      justify-content: center;
+      margin-bottom: 14px;
+    }
+
+    .gallery-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #d4bfa0;
+      cursor: pointer;
+      border: none;
+      padding: 0;
+      transition: background 0.2s;
+    }
+
+    .gallery-dot.active { background: #8b1a1a; }
+
+    .modal-body {
+      padding: 0 6px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .modal-title {
+      font-family: 'Irish Grover', cursive;
+      color: #8b1a1a;
+      font-size: 1.7rem;
+      line-height: 1;
+    }
+
+    .modal-desc {
+      font-family: 'Irish Grover', cursive;
+      font-size: 0.83rem;
+      color: #2a1a0a;
+      line-height: 1.75;
+    }
+
+    .modal-tech {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 4px;
+    }
+
+    .modal-tech img {
+      width: 22px;
+      height: 22px;
+      opacity: 0.85;
+      filter: sepia(10%);
+      transition: opacity 0.2s, filter 0.2s;
+    }
+
+    .modal-tech img:hover { opacity: 1; filter: none; }
+
+    /* ══════════════════════════════
+       CONTACT
+    ══════════════════════════════ */
+    #contact {
+      min-height: 60vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 80px 60px;
+    }
+
+    .contact-heading {
+      font-family: 'Irish Grover', cursive;
+      font-size: 2.5rem;
+      color: #8F2B27;
+      margin-bottom: 40px;
+      letter-spacing: 2px;
+      text-align: center;
+    }
+
+    .contact-links {
+      display: flex;
+      gap: 30px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .contact-links a {
+      font-family: 'Irish Grover', cursive;
+      font-size: 2rem;
+      color: #F3EDDB;
+      text-decoration: none;
+      border-bottom: 2px solid #F3EDDB;
+      padding-bottom: 4px;
+      letter-spacing: 2px;
+      transition: color 0.2s;
+    }
+
+    .contact-links a:hover { color: #5a0f0f; }
+
+    /* ══════════════════════════════
+       SMOOTH SCROLL
+    ══════════════════════════════ */
+    html { scroll-behavior: smooth; }
+  </style>
+</head>
+<body>
+
+  <!-- ── HERO ── -->
+  <section id="hero">
+    <img src="assets /corner.webp" class="corner" alt="">
+
+    <div class="hero-content">
+      <div class="name-wrapper">
+        <div class="name-row">
+          <img src="assets /letter_a.png" alt="a">
+          <img src="assets /letter_z.png" alt="z">
+          <img src="assets /letter_r.png" alt="r">
+          <img src="assets /letter_a.png" alt="a">
+        </div>
+        <div class="name-row">
+          <img src="assets /letter_a.png" class="letter-spacer" alt="">
+          <img src="assets /letter_z.png" class="letter-spacer" alt="">
+          <img src="assets /letter_t.png" alt="t">
+          <img src="assets /letter_a.png" alt="a">
+          <img src="assets /letter_l.png" alt="l">
+          <img src="assets /letter_u.png" alt="u">
+          <img src="assets /letter_m.png" alt="m">
+        </div>
+      </div>
+      <div class="subtitle-row">
+        <img src="assets /letter_a.png" class="letter-spacer" alt="">
+        <img src="assets /letter_z.png" class="letter-spacer" alt="">
+        <img src="assets /letter_t.png" class="letter-spacer" alt="">
+        <img src="assets /letter_a.png" class="letter-spacer" alt="">
+        <p class="hero-subtitle">Bsc Software Engineering</p>
+      </div>
+    </div>
+
+    <img src="assets /star.png" class="star" alt="">
+    <p class="welcome-text">WELCOME TO MY BOARD</p>
+  </section>
+
+  <!-- ── NAV NOTES ── -->
+  <section id="nav-notes">
+    <div class="notes-grid">
+
+      <a href="#projects" class="note-card note-1">
+        <img src="assets /note1.png" class="note-bg" alt="">
+        <div class="note-content note-content-1">
+          <h3 class="note-title">PROJECTS</h3>
+          <ul class="note-list">
+            <li>GetStanding</li>
+            <li>CLinical</li>
+            <li>Heat Optimization</li>
+            <li>Scrap Book</li>
+            <li>Audio Explorer</li>
+          </ul>
+        </div>
+        <span class="note-arrow">→</span>
+      </a>
+
+      <a href="resume.pdf" download class="note-card note-2">
+        <img src="assets /note2.png" class="note-bg" alt="">
+        <div class="note-content note-content-2">
+          <h3 class="note-title">RESUME</h3>
+          <span class="resume-download-btn">↓ download</span>
+        </div>
+        <span class="note-arrow">→</span>
+      </a>
+
+      <a href="#contact" class="note-card note-3">
+        <img src="assets /note3.png" class="note-bg" alt="">
+        <div class="note-content note-content-3">
+          <h3 class="note-title">CONTACT</h3>
+          <ul class="note-list">
+            <li>mail/</li>
+            <li>linkedin/</li>
+            <li>github/</li>
+          </ul>
+        </div>
+        <span class="note-arrow">→</span>
+      </a>
+
+      <a href="#about" class="note-card note-4">
+        <img src="assets /note4.png" class="note-bg" alt="">
+        <div class="note-content note-content-4">
+          <h3 class="note-title">WHO AM I ?</h3>
+        </div>
+        <span class="note-arrow">→</span>
+      </a>
+
+    </div>
+  </section>
+
+  <!-- ── ABOUT ── -->
+  <section id="about">
+    <div class="about-card">
+      <img src="assets /aboutme.webp" class="about-bg" alt="">
+      <div class="about-text-content">
+        <h2 class="about-heading">ABOUT ME</h2>
+        <p class="about-bio">
+          Hi, I'm Azra 4th semester Software Engineering student at
+          <strong>SDU Sønderborg</strong>. I've worked across embedded, web,
+          games, apps, data, and specializing in AI powered software
+          that's actually useful in everyday life. Check out my portfolio for more.
+        </p>
+      </div>
+    </div>
+    <div class="about-photo">
+      <img src="assets /photo.webp" alt="Azra Talum">
+    </div>
+  </section>
+
+  <!-- ── PROJECTS ── -->
+  <section id="projects">
+    <h2 class="projects-heading">PROJECTS</h2>
+    <div class="polaroids-container">
+
+      <!-- ROW 1 -->
+      <div class="polaroid"
+        data-title="GetStanding"
+        data-status="Completed"
+        data-status-class="status-done"
+        data-desc="A web platform built for office workers and students who spend most of their day sitting. GetStanding connects with a smart desk to monitor activity and nudge users to stand, stretch, or move. Features include break reminders, activity tracking, calorie and meal logging helping users build healthier habits and better posture throughout the day."
+        data-images="assets /projects /getstanding/getstanding1.jpg|assets /projects /getstanding/getstanding2.jpg|assets /projects /getstanding/getstanding3.jpg|assets /projects /getstanding/getstanding4.jpg">
+        <div class="polaroid-inner">
+          <img src="assets /projects /getstanding/getstanding1.jpg" class="polaroid-img" alt="GetStanding">
+          <div class="polaroid-bottom">
+            <p class="polaroid-caption">GetStanding</p>
+            <div class="polaroid-tech">
+              <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg" alt="React">
+              <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/vitejs/vitejs-original.svg" alt="Vite">
+              <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nodejs/nodejs-original.svg" alt="Node.js">
+              <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/express/express-original.svg" alt="Express">
+              <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/postgresql/postgresql-original.svg" alt="PostgreSQL">
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      <div class="polaroid"
+        data-title="CLinical"
+        data-status="On going"
+        data-status-class="status-wip"
+        data-desc="A patient appointment portal that improves the quality of medical consultations. CLInical listens in real time, surfaces suggestions for anything the doctor may have missed, and generates a structured report emailed to the patient after each visit. Includes a full appointment management system for scheduling, viewing, and modifying bookings."
+        data-images="assets /projects /clinical/clinical1.jpg|assets /projects /clinical/clinical2.jpg|assets /projects /clinical/clinical3.jpg">
+        <div class="polaroid-inner">
+          <img src="assets /projects /clinical/clinical1.jpg" class="polaroid-img" alt="CLinical">
+          <div class="polaroid-bottom">
+            <p class="polaroid-caption">CLinical</p>
+            <div class="polaroid-tech">
+              <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg" alt="Python">
+              <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/fastapi/fastapi-original.svg" alt="FastAPI">
+              <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/postgresql/postgresql-original.svg" alt="PostgreSQL">
+              <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/openai/openai-original.svg" alt="Whisper / Ollama">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ROW 2 -->
+      <div class="polaroid"
+        data-title="Heat Optimization"
+        data-status="Completed"
+        data-status-class="status-done"
+        data-desc="Built for Danfoss — an optimizer that automates heat production scheduling across a fictional town's district heating grid of 1600 buildings. The system calculates hourly unit schedules that meet demand at minimum cost, handling both summer and winter load scenarios, and replaces a manual planning process with a clean UI driven workflow."
+        data-images="assets /projects /heat/heat1.jpg|assets /projects /heat/heat2.jpg">
+        <div class="polaroid-inner">
+          <img src="assets /projects /heat/heat1.jpg" class="polaroid-img" alt="Heat Optimization">
+          <div class="polaroid-bottom">
+            <p class="polaroid-caption">Heat Optimization</p>
+            <div class="polaroid-tech">
+              <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/csharp/csharp-original.svg" alt="C#">
+              <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/dot-net/dot-net-original.svg" alt=".NET">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="polaroid"
+        data-title="Scrap Book"
+        data-status=""
+        data-status-class=""
+        data-desc="A personal digital diary and creative playground. Scrap Book bundles a calendar, a music player, custom animations, and a film rating page into one space."
+        data-images="assets /projects /scrap/scrap1.jpg|assets /projects /scrap/scrap2.jpg|assets /projects /scrap/scrap3.jpg|assets /projects /scrap/scrap4.jpg">
+        <div class="polaroid-inner">
+          <img src="assets /projects /scrap/scrap1.jpg" class="polaroid-img" alt="Scrap Book">
+          <div class="polaroid-bottom">
+            <p class="polaroid-caption">Scrap Book</p>
+            <div class="polaroid-tech">
+              <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/html5/html5-original.svg" alt="HTML">
+              <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/css3/css3-original.svg" alt="CSS">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="polaroid"
+        data-title="Audio Explorer"
+        data-status="Completed"
+        data-status-class="status-done"
+        data-desc="A Python signal processing pipeline built around a space station scenario: 12 newborn hearing screenings, each corrupted by cosmic interference, with only 8 carrying a real cochlear echo (TEOAE). The pipeline cleans the signals, classifies which babies have a genuine OAE, and matches each to the correct template from an unlabeled backup set."
+        data-images="assets /projects /audioexplorer/report1.jpg|assets /projects /audioexplorer/report2.jpg">
+        <div class="polaroid-inner">
+          <img src="assets /projects /audioexplorer/report1.jpg" class="polaroid-img" alt="Audio Explorer">
+          <div class="polaroid-bottom">
+            <p class="polaroid-caption">Audio Explorer</p>
+            <div class="polaroid-tech">
+              <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg" alt="">
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ── CONTACT ── -->
+  <section id="contact">
+    <h2 class="contact-heading">CONTACT</h2>
+    <div class="contact-links">
+      <a href="mailto:talumazra@gmail.com">EMAIL</a>
+      <a href="https://github.com/azratlm" target="_blank">GITHUB</a>
+      <a href="https://www.linkedin.com/in/azra-talum-088898291" target="_blank">LINKEDIN</a>
+    </div>
+  </section>
+
+  <!-- ── PROJECT MODAL ── -->
+  <div id="project-modal" class="modal-overlay" role="dialog" aria-modal="true">
+    <div class="modal-polaroid">
+      <button class="modal-close" aria-label="Close">✕</button>
+      <div class="modal-img-area">
+        <img class="modal-gallery-img" src="" alt="" style="display:none">
+        <div class="modal-img-placeholder">PROJECT IMAGE</div>
+        <button class="gallery-btn gallery-prev">&#8249;</button>
+        <button class="gallery-btn gallery-next">&#8250;</button>
+      </div>
+      <div class="gallery-dots"></div>
+      <div class="modal-body">
+        <h2 class="modal-title"></h2>
+        <span class="modal-status polaroid-status"></span>
+        <p class="modal-desc"></p>
+        <div class="modal-tech"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const modal        = document.getElementById('project-modal');
+    const modalGallery = modal.querySelector('.modal-gallery-img');
+    const modalPlaceholder = modal.querySelector('.modal-img-placeholder');
+    const modalTitle   = modal.querySelector('.modal-title');
+    const modalStatus  = modal.querySelector('.modal-status');
+    const modalDesc    = modal.querySelector('.modal-desc');
+    const modalTech    = modal.querySelector('.modal-tech');
+    const galleryDots  = modal.querySelector('.gallery-dots');
+    const btnPrev      = modal.querySelector('.gallery-prev');
+    const btnNext      = modal.querySelector('.gallery-next');
+
+    let images = [];
+    let current = 0;
+
+    function showImage(index) {
+      current = index;
+      modalGallery.src = images[current];
+      modalGallery.style.display = 'block';
+      modalPlaceholder.style.display = 'none';
+      btnPrev.classList.toggle('hidden', images.length <= 1);
+      btnNext.classList.toggle('hidden', images.length <= 1);
+      galleryDots.querySelectorAll('.gallery-dot').forEach((d, i) => {
+        d.classList.toggle('active', i === current);
+      });
+    }
+
+    function buildDots() {
+      galleryDots.innerHTML = '';
+      if (images.length <= 1) return;
+      images.forEach((_, i) => {
+        const dot = document.createElement('button');
+        dot.className = 'gallery-dot' + (i === 0 ? ' active' : '');
+        dot.addEventListener('click', () => showImage(i));
+        galleryDots.appendChild(dot);
+      });
+    }
+
+    function openModal(card) {
+      const title = card.dataset.title;
+      if (!title) return;
+
+      modalTitle.textContent = title;
+
+      const status = card.dataset.status;
+      const sc     = card.dataset.statusClass;
+      modalStatus.textContent = status || '';
+      modalStatus.className   = 'modal-status polaroid-status' + (sc ? ' ' + sc : '');
+      modalStatus.style.display = status ? 'inline-block' : 'none';
+
+      modalDesc.textContent = card.dataset.desc || '';
+
+      const techSrc = card.querySelector('.polaroid-tech');
+      modalTech.innerHTML = techSrc ? techSrc.innerHTML : '';
+      modalTech.querySelectorAll('img').forEach(img => {
+        img.style.width = '22px'; img.style.height = '22px';
+      });
+
+      const raw = card.dataset.images || '';
+      images = raw ? raw.split('|') : [];
+
+      if (images.length) {
+        buildDots();
+        showImage(0);
+      } else {
+        modalGallery.style.display = 'none';
+        modalPlaceholder.style.display = 'flex';
+        galleryDots.innerHTML = '';
+        btnPrev.classList.add('hidden');
+        btnNext.classList.add('hidden');
+      }
+
+      modal.classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeModal() {
+      modal.classList.remove('open');
+      document.body.style.overflow = '';
+    }
+
+    btnPrev.addEventListener('click', e => { e.stopPropagation(); showImage((current - 1 + images.length) % images.length); });
+    btnNext.addEventListener('click', e => { e.stopPropagation(); showImage((current + 1) % images.length); });
+
+    document.querySelectorAll('.polaroid').forEach(card => {
+      card.addEventListener('click', () => openModal(card));
+    });
+
+    modal.addEventListener('click', e => { if (e.target === modal) closeModal(); });
+    modal.querySelector('.modal-close').addEventListener('click', closeModal);
+    document.addEventListener('keydown', e => {
+      if (!modal.classList.contains('open')) return;
+      if (e.key === 'Escape')      closeModal();
+      if (e.key === 'ArrowLeft')   showImage((current - 1 + images.length) % images.length);
+      if (e.key === 'ArrowRight')  showImage((current + 1) % images.length);
+    });
+  </script>
+
+</body>
+</html>
